@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#eff1e5">
   <meta name="description" content="Open-source build infrastructure for developers and agents. Hermetic toolchains, cross-compilation, and remote execution.">
-  <title>Hermetic Build</title>
+  <title>Hermetic Build | Build &amp; Test Infrastructure</title>
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
   <style>
     :root { color-scheme: light; }
     * { box-sizing: border-box; }
@@ -32,11 +33,7 @@
       font-size: 0.8em;
       line-height: 1.65;
     }
-    .build-replay-short {
-      background: #293226;
-      color: #eff1e5;
-    }
-    .build-replay:not(.build-replay-short) :is(.build-command, .build-output) {
+    .build-command, .build-output {
       color: #626d5b;
     }
     .build-surface {
@@ -48,13 +45,14 @@
       color: inherit;
       font: inherit;
       text-align: start;
-      cursor: pointer;
     }
+    .build-surface:enabled { cursor: pointer; }
     .build-surface:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
     .build-output {
       display: block;
-      min-height: 8lh;
+      height: 8lh;
       margin: 8px 0 0;
+      overflow: auto;
       white-space: pre-wrap;
       overflow-wrap: anywhere;
     }
@@ -63,7 +61,6 @@
       font: inherit;
       overflow-wrap: anywhere;
     }
-    .build-replay-short ::selection { background: #eff1e5; color: #293226; }
     .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
     header p, h1, h2, p, ul { margin: 0; }
     h1, h2 { font: inherit; font-weight: 600; }
@@ -113,17 +110,22 @@
     .adopters-list img { display: block; width: auto; height: 20px; filter: url(#adopter-ink); }
     footer { margin-top: 40px; color: #52604a; }
     ::selection { background: #293226; color: #eff1e5; }
-    @media (max-width: 600px) {
+    @media (width <= 600px) {
       body { padding: 24px; font-size: 13px; line-height: 21px; }
-    }
-    @media (max-width: 400px) {
-      .build-output { min-height: 12lh; }
+      .build-replay { display: none; }
     }
   </style>
+  <noscript><style>.build-replay { display: none; }</style></noscript>
   <script type="module">
-    const shortReplay = new URLSearchParams(location.search).get('replay') === '5s';
-    if (shortReplay) document.querySelector('.build-replay').classList.add('build-replay-short');
-    import(shortReplay ? './build-replay-5s.js' : './build-replay.js');
+    const replayViewport = matchMedia('(width > 600px)');
+    async function loadReplay() {
+      if (!replayViewport.matches) return;
+      replayViewport.removeEventListener('change', loadReplay);
+      const { initReplay } = await import('./build-replay.js');
+      initReplay(replayViewport);
+    }
+    replayViewport.addEventListener('change', loadReplay);
+    loadReplay();
 
     function updateProjectFade(row) {
       const overflow = row.scrollWidth - row.clientWidth;
@@ -147,9 +149,9 @@
     <img class="print-mark" src="paper/revised/hermeticbuild-mark-print.svg" width="36" height="36" alt="">
   </header>
   <main>
-    <section class="build-replay" aria-label="UEFI build replay" hidden>
-      <button type="button" class="build-surface" aria-label="Replay UEFI build" aria-describedby="build-command">
-        <code id="build-command" class="build-command">$ bazel build --config remote --jobs=2400 //:disk</code>
+    <section class="build-replay" aria-label="UEFI build replay" data-nosnippet>
+      <button type="button" class="build-surface" aria-label="Replay UEFI build" aria-describedby="build-command" disabled>
+        <code id="build-command" class="build-command">$ zabel build --config remote --jobs=2400 //bootdisk</code>
         <span class="build-output" aria-hidden="true"></span>
       </button>
       <span class="visually-hidden" role="status"></span>
@@ -172,15 +174,15 @@
         </filter>
       </svg>
       <ul class="adopters-list" role="list" aria-labelledby="adopters-title">
-        <li><a href="https://github.com/bazelbuild/bazel"><img src="adopters/bazel.svg" alt="">Bazel</a></li>
-        <li><a href="https://github.com/google/gvisor"><img src="adopters/google.svg" alt="">Google</a></li>
-        <li><a href="https://github.com/JetBrains/intellij-community"><img src="adopters/jetbrains.svg" alt="">JetBrains</a></li>
-        <li><a href="https://github.com/llvm/llvm-project"><img src="adopters/llvm.svg" alt="">LLVM</a></li>
-        <li><a href="https://github.com/openai/codex"><img src="adopters/openai.svg" alt="">OpenAI</a></li>
-        <li><a href="https://www.perplexity.ai/"><img src="adopters/perplexity.svg" alt="">Perplexity</a></li>
-        <li><a href="https://soundcloud.com/"><img src="adopters/soundcloud.svg" alt="">SoundCloud</a></li>
-        <li><a href="https://github.com/Tinder/bazel-diff"><img src="adopters/tinder.svg" alt="">Tinder</a></li>
-        <li><a href="https://zml.ai/"><img src="adopters/zml.svg" alt="">ZML</a></li>
+        <li><a href="https://github.com/bazelbuild/bazel"><img src="adopters/bazel.svg" width="24" height="24" alt="">Bazel</a></li>
+        <li><a href="https://github.com/google/gvisor"><img src="adopters/google.svg" width="24" height="24" alt="">Google</a></li>
+        <li><a href="https://github.com/JetBrains/intellij-community"><img src="adopters/jetbrains.svg" width="24" height="24" alt="">JetBrains</a></li>
+        <li><a href="https://github.com/llvm/llvm-project"><img src="adopters/llvm.svg" width="24" height="24" alt="">LLVM</a></li>
+        <li><a href="https://github.com/openai/codex"><img src="adopters/openai.svg" width="24" height="24" alt="">OpenAI</a></li>
+        <li><a href="https://www.perplexity.ai/"><img src="adopters/perplexity.svg" width="24" height="24" alt="">Perplexity</a></li>
+        <li><a href="https://soundcloud.com/"><img src="adopters/soundcloud.svg" width="24" height="11" alt="">SoundCloud</a></li>
+        <li><a href="https://github.com/Tinder/bazel-diff"><img src="adopters/tinder.svg" width="24" height="24" alt="">Tinder</a></li>
+        <li><a href="https://zml.ai/"><img src="adopters/zml.svg" width="702" height="679" alt="">ZML</a></li>
       </ul>
     </div>
 
@@ -216,7 +218,7 @@
         </li>
         <li>
           <span class="project-marker" aria-hidden="true">*</span>
-          <span class="project-line"><span class="project-name">Hermetic Build Registry</span> — Curated build rules with strong hermeticity, cross compilation and remote execution philosophy.</span>
+          <span class="project-line"><span class="project-name">Build Registry</span> — Hermetic build rules for thousands of common OSS dependencies.</span>
         </li>
       </ul>
     </section>

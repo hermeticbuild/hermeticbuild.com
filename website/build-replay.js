@@ -1,6 +1,6 @@
 import { startReplay } from './replay-controls.js';
 
-(() => {
+export function initReplay(viewport) {
   const duration = 60_000;
   const analysisEnd = 3600;
   const actionsShown = 5;
@@ -140,11 +140,11 @@ import { startReplay } from './replay-controls.js';
     output.textContent = [analyzed, `${progress} ${running} actions running`, ...sample].join('\n');
   }
 
-  replay.querySelector('.build-command').textContent = '$ bazel build --config remote --jobs=2400 //bootdisk';
   startReplay(replay, {
+    viewport,
     duration,
     renderInterval: 120,
     render,
     completionMessage: `UEFI disk image complete in 60 seconds. ${format.format(total)} actions, with ${format.format(peak)} remote actions running at peak.`,
   });
-})();
+}

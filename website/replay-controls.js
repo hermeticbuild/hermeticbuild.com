@@ -1,9 +1,10 @@
-export function startReplay(replay, { duration, renderInterval, render, completionMessage }) {
+export function startReplay(replay, { viewport, duration, renderInterval, render, completionMessage }) {
   const surface = replay.querySelector('.build-surface');
   const status = replay.querySelector('[role="status"]');
   let frame;
   let elapsed = 0;
   let startedAt = null;
+  let resumeOnDesktop = !viewport.matches;
 
   function complete() {
     startedAt = null;
@@ -36,25 +37,42 @@ export function startReplay(replay, { duration, renderInterval, render, completi
     frame = requestAnimationFrame(tick);
   }
 
+  function pause() {
+    cancelAnimationFrame(frame);
+    elapsed = performance.now() - startedAt;
+    if (elapsed >= duration) {
+      complete();
+      return;
+    }
+    startedAt = null;
+    render(elapsed);
+    surface.setAttribute('aria-label', 'Resume UEFI build replay');
+    status.textContent = 'UEFI build replay paused.';
+  }
+
   surface.addEventListener('click', () => {
     if (startedAt !== null) {
-      cancelAnimationFrame(frame);
-      elapsed = performance.now() - startedAt;
-      if (elapsed < duration) {
-        startedAt = null;
-        render(elapsed);
-        surface.setAttribute('aria-label', 'Resume UEFI build replay');
-        status.textContent = 'UEFI build replay paused.';
-        return;
-      }
+      pause();
+      if (elapsed < duration) return;
     }
     play(elapsed < duration ? elapsed : 0);
   });
 
-  replay.hidden = false;
+  viewport.addEventListener('change', ({ matches }) => {
+    if (!matches && startedAt !== null) {
+      pause();
+      resumeOnDesktop = elapsed < duration;
+    } else if (matches && resumeOnDesktop) {
+      resumeOnDesktop = false;
+      play(elapsed);
+    }
+  });
+
+  surface.disabled = false;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    resumeOnDesktop = false;
     complete();
-  } else {
+  } else if (viewport.matches) {
     play(0);
   }
 }
