@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#eff1e5">
+  <meta name="description" content="Open-source build infrastructure for developers and agents. Hermetic toolchains, cross-compilation, and remote execution.">
+  <title>Hermetic Build</title>
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 40px;
+      background: #eff1e5;
+      color: #293226;
+      font: 400 12px/20px ui-monospace, "SF Mono", SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      -webkit-font-smoothing: antialiased;
+    }
+    header, .masthead-rule, main, footer { width: 520px; max-width: 100%; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 12px;
+    }
+    .masthead-rule { margin: 0 0 14px; border: 0; border-top: 1px dotted #bfc7b0; }
+    .print-mark { display: block; flex: none; }
+    .build-replay {
+      margin-bottom: 14px;
+      font-size: 0.8em;
+      line-height: 1.65;
+    }
+    .build-replay-short {
+      background: #293226;
+      color: #eff1e5;
+    }
+    .build-replay:not(.build-replay-short) :is(.build-command, .build-output) {
+      color: #626d5b;
+    }
+    .build-surface {
+      display: block;
+      width: 100%;
+      border: 0;
+      padding: 8px 0;
+      background: none;
+      color: inherit;
+      font: inherit;
+      text-align: start;
+      cursor: pointer;
+    }
+    .build-surface:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+    .build-output {
+      display: block;
+      min-height: 8lh;
+      margin: 8px 0 0;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+    .build-command {
+      display: block;
+      font: inherit;
+      overflow-wrap: anywhere;
+    }
+    .build-replay-short ::selection { background: #eff1e5; color: #293226; }
+    .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+    header p, h1, h2, p, ul { margin: 0; }
+    h1, h2 { font: inherit; font-weight: 600; }
+    h1, h2, p, ul { margin-bottom: 20px; }
+    header p { margin-bottom: 0; }
+    header strong { font-weight: 600; }
+    ul { list-style: none; padding: 0; }
+    a { color: #49583e; text-underline-offset: 2px; overflow-wrap: anywhere; }
+    a:hover { color: #293226; text-decoration-thickness: 2px; }
+    a:focus-visible { outline: 1px solid currentColor; outline-offset: 4px; }
+    .project-list li {
+      display: grid;
+      grid-template-columns: 1ch minmax(0, 1fr);
+      column-gap: 1ch;
+    }
+    .project-marker { align-self: start; }
+    .project-list a { color: #426339; }
+    .project-list a:hover { color: #304c29; }
+    .adopters-title { margin-bottom: 8px; color: #52604a; }
+    .adopters-list {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      overflow-x: auto;
+    }
+    .adopters-list li { flex: none; }
+    .adopters-list a {
+      display: grid;
+      justify-items: center;
+      gap: 4px;
+      font-size: 10px;
+      line-height: 1.4;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .adopters-list a:hover { text-decoration: underline; }
+    .adopters-list a:focus-visible { outline-offset: -1px; }
+    .adopters-list img { display: block; width: auto; height: 20px; filter: url(#adopter-ink); }
+    footer { margin-top: 40px; color: #52604a; }
+    ::selection { background: #293226; color: #eff1e5; }
+    @media (max-width: 600px) {
+      body { padding: 24px; font-size: 13px; line-height: 21px; }
+    }
+    @media (max-width: 400px) {
+      .build-output { min-height: 12lh; }
+    }
+  </style>
+  <script type="module">
+    const shortReplay = new URLSearchParams(location.search).get('replay') === '5s';
+    if (shortReplay) document.querySelector('.build-replay').classList.add('build-replay-short');
+    import(shortReplay ? './build-replay-5s.js' : './build-replay.js');
+  </script>
+</head>
+<body>
+  <header aria-label="Hermetic Build">
+    <p><strong>HERMETIC BUILD</strong><br>BUILD &amp; TEST INFRASTRUCTURE<br>2026</p>
+    <img class="print-mark" src="paper/revised/hermeticbuild-mark-print.svg" width="36" height="36" alt="">
+  </header>
+  <main>
+    <section class="build-replay" aria-label="UEFI build replay" hidden>
+      <button type="button" class="build-surface" aria-label="Replay UEFI build" aria-describedby="build-command">
+        <code id="build-command" class="build-command">$ bazel build --config remote --jobs=2400 //:disk</code>
+        <span class="build-output" aria-hidden="true"></span>
+      </button>
+      <span class="visually-hidden" role="status"></span>
+    </section>
+    <hr class="masthead-rule">
+    <h1><span aria-hidden="true"># </span>ABOUT HERMETIC BUILD</h1>
+    <p>We build open-source infrastructure for building and testing software. For developers and agents.</p>
+    <p>Hermetic toolchains. Cross-compilation. Remote execution.<br>Designed together, from the compiler to the build system.</p>
+
+    <div>
+      <p class="adopters-title" id="adopters-title">Our users include:</p>
+      <svg class="visually-hidden" aria-hidden="true">
+        <filter id="adopter-ink" color-interpolation-filters="sRGB">
+          <feColorMatrix type="matrix" values="
+            .10 .34 .04 0 .32
+            .10 .33 .03 0 .38
+            .10 .34 .04 0 .29
+            0   0   0   1 0"/>
+        </filter>
+      </svg>
+      <ul class="adopters-list" role="list" aria-labelledby="adopters-title">
+        <li><a href="https://github.com/bazelbuild/bazel"><img src="adopters/bazel.svg" alt="">Bazel</a></li>
+        <li><a href="https://github.com/google/gvisor"><img src="adopters/google.svg" alt="">Google</a></li>
+        <li><a href="https://github.com/JetBrains/intellij-community"><img src="adopters/jetbrains.svg" alt="">JetBrains</a></li>
+        <li><a href="https://github.com/llvm/llvm-project"><img src="adopters/llvm.svg" alt="">LLVM</a></li>
+        <li><a href="https://github.com/openai/codex"><img src="adopters/openai.svg" alt="">OpenAI</a></li>
+        <li><a href="https://www.perplexity.ai/"><img src="adopters/perplexity.svg" alt="">Perplexity</a></li>
+        <li><a href="https://soundcloud.com/"><img src="adopters/soundcloud.svg" alt="">SoundCloud</a></li>
+        <li><a href="https://github.com/Tinder/bazel-diff"><img src="adopters/tinder.svg" alt="">Tinder</a></li>
+        <li><a href="https://zml.ai/"><img src="adopters/zml.svg" alt="">ZML</a></li>
+      </ul>
+    </div>
+
+    <section aria-labelledby="projects">
+      <h2 id="projects"><span aria-hidden="true">## </span>OPEN SOURCE</h2>
+      <ul class="project-list" role="list">
+        <li>
+          <span class="project-marker" aria-hidden="true">*</span>
+          <span><a href="https://github.com/hermeticbuild/hermetic-llvm">hermetic-llvm</a> — A fully hermetic LLVM cross-compilation toolchain.</span>
+        </li>
+        <li>
+          <span class="project-marker" aria-hidden="true">*</span>
+          <span><a href="https://github.com/hermeticbuild/rules_rs">rules_rs</a> — Hermetic Rust builds with Cargo integration.</span>
+        </li>
+        <li>
+          <span class="project-marker" aria-hidden="true">*</span>
+          <span><a href="https://github.com/hermeticbuild/linux.bzl">linux.bzl</a> — Build and customize Linux kernels from source.</span>
+        </li>
+        <li>
+          <span class="project-marker" aria-hidden="true">*</span>
+          <span><a href="https://github.com/hermeticbuild/actiond">actiond</a> — A local remote-execution worker and cache.</span>
+        </li>
+      </ul>
+      <p>Explore more projects from Hermetic Build contributors on <a href="https://github.com/hermeticbuild">GitHub</a>.</p>
+    </section>
+
+    <section aria-labelledby="in-development">
+      <h2 id="in-development"><span aria-hidden="true">## </span>INCUBATING</h2>
+      <ul class="project-list" role="list">
+        <li>
+          <span class="project-marker" aria-hidden="true">*</span>
+          <span><a href="https://github.com/hermeticbuild/zabel_releases/releases">Zabel</a> — A Bazel-compatible build engine in Zig for remote execution.</span>
+        </li>
+        <li>
+          <span class="project-marker" aria-hidden="true">*</span>
+          <span>Hermetic Build Registry — Curated dependencies for hermetic builds.</span>
+        </li>
+      </ul>
+    </section>
+  </main>
+  <footer><p>© 2026 Hermetic Build</p></footer>
+</body>
+</html>
