@@ -80,7 +80,16 @@
       column-gap: 1ch;
     }
     .project-marker { align-self: start; }
-    .project-list a { color: #426339; }
+    .project-line {
+      overflow-x: auto;
+      scrollbar-width: none;
+      white-space: nowrap;
+    }
+    .project-line[data-fade] {
+      mask-image: linear-gradient(to right, #000 calc(100% - 64px), transparent);
+    }
+    .project-line:focus-visible, .project-line a:focus-visible { outline-offset: -1px; }
+    .project-list a, .project-name { color: #426339; }
     .project-list a:hover { color: #304c29; }
     .adopters-title { margin-bottom: 8px; color: #52604a; }
     .adopters-list {
@@ -115,6 +124,21 @@
     const shortReplay = new URLSearchParams(location.search).get('replay') === '5s';
     if (shortReplay) document.querySelector('.build-replay').classList.add('build-replay-short');
     import(shortReplay ? './build-replay-5s.js' : './build-replay.js');
+
+    function updateProjectFade(row) {
+      const overflow = row.scrollWidth - row.clientWidth;
+      row.toggleAttribute('data-fade', overflow - row.scrollLeft > 1);
+      if (overflow > 1) row.tabIndex = 0;
+      else row.removeAttribute('tabindex');
+    }
+
+    const projectRowObserver = new ResizeObserver(entries => {
+      for (const { target } of entries) updateProjectFade(target);
+    });
+    for (const row of document.querySelectorAll('.project-line')) {
+      projectRowObserver.observe(row);
+      row.addEventListener('scroll', () => updateProjectFade(row), { passive: true });
+    }
   </script>
 </head>
 <body>
@@ -132,8 +156,8 @@
     </section>
     <hr class="masthead-rule">
     <h1><span aria-hidden="true"># </span>ABOUT HERMETIC BUILD</h1>
-    <p>We build open-source infrastructure for building and testing software. For developers and agents.</p>
-    <p>Hermetic toolchains. Cross-compilation. Remote execution.<br>Designed together, from the compiler to the build system.</p>
+    <p>We develop tooling, toolchains and rulesets to make build and test workflows blazing fast at agentic scale.</p>
+    <p>100% hermetic. Cross compilation first. Remote execution ready.<br>Designed together to drastically speed up developer and agentic loops.</p>
 
     <div>
       <p class="adopters-title" id="adopters-title">Our users include:</p>
@@ -164,22 +188,22 @@
       <ul class="project-list" role="list">
         <li>
           <span class="project-marker" aria-hidden="true">*</span>
-          <span><a href="https://github.com/hermeticbuild/hermetic-llvm">hermetic-llvm</a> — A fully hermetic LLVM cross-compilation toolchain.</span>
+          <span class="project-line"><a href="https://github.com/hermeticbuild/hermetic-llvm">hermetic-llvm</a> — A fully hermetic LLVM cross-compilation toolchain.</span>
         </li>
         <li>
           <span class="project-marker" aria-hidden="true">*</span>
-          <span><a href="https://github.com/hermeticbuild/rules_rs">rules_rs</a> — Hermetic Rust builds with Cargo integration.</span>
+          <span class="project-line"><a href="https://github.com/hermeticbuild/rules_rs">rules_rs</a> — Hermetic Rust builds with Cargo integration.</span>
         </li>
         <li>
           <span class="project-marker" aria-hidden="true">*</span>
-          <span><a href="https://github.com/hermeticbuild/linux.bzl">linux.bzl</a> — Build and customize Linux kernels from source.</span>
+          <span class="project-line"><a href="https://github.com/hermeticbuild/linux.bzl">linux.bzl</a> — Build and customize Linux kernels from source.</span>
         </li>
         <li>
           <span class="project-marker" aria-hidden="true">*</span>
-          <span><a href="https://github.com/hermeticbuild/actiond">actiond</a> — A local remote-execution worker and cache.</span>
+          <span class="project-line"><a href="https://github.com/hermeticbuild/actiond">actiond</a> — A local remote-execution worker and cache.</span>
         </li>
       </ul>
-      <p>Explore more projects from Hermetic Build contributors on <a href="https://github.com/hermeticbuild">GitHub</a>.</p>
+      <p>Explore more projects from <a href="https://github.com/orgs/hermeticbuild/people">Hermetic Build contributors</a> on <a href="https://github.com/hermeticbuild">GitHub</a>.</p>
     </section>
 
     <section aria-labelledby="in-development">
@@ -187,11 +211,11 @@
       <ul class="project-list" role="list">
         <li>
           <span class="project-marker" aria-hidden="true">*</span>
-          <span><a href="https://github.com/hermeticbuild/zabel_releases/releases">Zabel</a> — A Bazel-compatible build engine in Zig for remote execution.</span>
+          <span class="project-line"><a href="https://github.com/hermeticbuild/zabel_releases/releases">Zabel</a> — Blazing fast Bazel-compatible build engine.</span>
         </li>
         <li>
           <span class="project-marker" aria-hidden="true">*</span>
-          <span>Hermetic Build Registry — Curated dependencies for hermetic builds.</span>
+          <span class="project-line"><span class="project-name">Hermetic Build Registry</span> — Curated build rules with strong hermeticity, cross compilation and remote execution philosophy.</span>
         </li>
       </ul>
     </section>
